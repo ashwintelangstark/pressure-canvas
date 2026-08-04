@@ -54,10 +54,48 @@ export function useSerialMat() {
       setStatus("error");
       return;
     }
+    let port: any = null;
     try {
       setStatus("connecting");
-      const port = await nav.serial.requestPort();
-      await port.open({ baudRate: 115200 });
+      port = await nav.serial.requestPort();
+
+      // A port left open by an earlier attempt (or a stale stream) makes
+      // open() throw "Failed to open serial port". Release it first.
+      if (port.readable || port.writable) {
+        try {
+          await port.close();
+        } catch {
+          /* ignore */
+        }
+      }
+
+      const options = {
+        baudRate: 115200,
+        dataBits: 8,
+        stopBits: 1,
+        parity: "none" as const,
+        bufferSize: 8192,
+        flowControl: "none" as const,
+      };
+
+      // One retry: some USB-serial bridges (CP210x / CH340) need a moment
+      // after a previous session released the device.
+      try {
+        await port.open(options);
+      } catch (first: any) {
+        await new Promise((res) => setTimeout(res, 600));
+        try {
+          await port.close();
+        } catch {
+          /* ignore */
+        }
+        try {
+          await port.open(options);
+        } catch {
+          throw first;
+        }
+      }
+
       portRef.current = port;
       setStatus("connected");
 
@@ -94,8 +132,28 @@ export function useSerialMat() {
         }
       })();
     } catch (e: any) {
-      setError(e?.name === "NotFoundError" ? "No device selected." : (e?.message ?? "Connection failed"));
-      setStatus("idle");
+      try {
+        await port?.close();
+      } catch {
+        /* ignore */
+      }
+      portRef.current = null;
+      const name = e?.name ?? "";
+      const raw = String(e?.message ?? "");
+      let msg = raw || "Connection failed";
+      if (name === "NotFoundError" && !raw.includes("open")) {
+        msg = "No device selected.";
+      } else if (name === "SecurityError") {
+        msg =
+          "The browser blocked serial access in this embedded preview. Open the app in its own browser tab and try again.";
+      } else if (name === "InvalidStateError" || /already open/i.test(raw)) {
+        msg = "That port is already open in this page. Click Disconnect, then connect again.";
+      } else if (/failed to open/i.test(raw)) {
+        msg =
+          "Couldn't open the port. Close anything else using it (Arduino Serial Monitor, PlatformIO, a Python script, another tab), then unplug and replug the ESP32 and retry.";
+      }
+      setError(msg);
+      setStatus(name === "NotFoundError" && !raw.includes("open") ? "idle" : "error");
     }
   }, [onFrame]);
 
