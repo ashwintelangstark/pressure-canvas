@@ -27,7 +27,7 @@ export function useSerialMat() {
     times.push(now);
     while (times.length > 12) times.shift();
     if (times.length > 1) {
-      const span = times[times.length - 1] - times[0];
+      const span = times[times.length - 1]! - times[0]!;
       setFps(span > 0 ? ((times.length - 1) / span) * 1000 : 0);
     }
   }, []);

@@ -44,21 +44,25 @@ export class FrameParser {
 }
 
 /** Blue -> cyan -> green -> amber -> red thermal ramp. Returns an rgb() string. */
+const STOPS: ReadonlyArray<readonly [number, number, number, number]> = [
+  [0.0, 12, 20, 48],
+  [0.25, 22, 120, 190],
+  [0.5, 40, 190, 150],
+  [0.72, 232, 190, 70],
+  [1.0, 226, 66, 52],
+];
+
 export function heatColor(norm: number): string {
   const t = Math.min(1, Math.max(0, norm));
-  const stops: [number, number, number, number][] = [
-    [0.0, 12, 20, 48],
-    [0.25, 22, 120, 190],
-    [0.5, 40, 190, 150],
-    [0.72, 232, 190, 70],
-    [1.0, 226, 66, 52],
-  ];
-  for (let i = 0; i < stops.length - 1; i++) {
-    const [p0, r0, g0, b0] = stops[i];
-    const [p1, r1, g1, b1] = stops[i + 1];
-    if (t <= p1) {
-      const f = (t - p0) / (p1 - p0);
-      return `rgb(${Math.round(r0 + (r1 - r0) * f)}, ${Math.round(g0 + (g1 - g0) * f)}, ${Math.round(b0 + (b1 - b0) * f)})`;
+  for (let i = 0; i < STOPS.length - 1; i++) {
+    const a = STOPS[i]!;
+    const b = STOPS[i + 1]!;
+    if (t <= b[0]) {
+      const f = (t - a[0]) / (b[0] - a[0]);
+      const r = Math.round(a[1] + (b[1] - a[1]) * f);
+      const g = Math.round(a[2] + (b[2] - a[2]) * f);
+      const bl = Math.round(a[3] + (b[3] - a[3]) * f);
+      return `rgb(${r}, ${g}, ${bl})`;
     }
   }
   return "rgb(226, 66, 52)";
