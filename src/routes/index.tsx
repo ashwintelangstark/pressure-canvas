@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { COLS, MAX_VALUE, ROWS, heatColor } from "@/lib/pressure";
 import { useSerialMat } from "@/lib/use-serial-mat";
 
