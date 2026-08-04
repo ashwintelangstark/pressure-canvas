@@ -38,6 +38,11 @@ function Dashboard() {
     useSerialMat();
   const [hover, setHover] = useState<{ r: number; c: number } | null>(null);
   const [autoScale, setAutoScale] = useState(true);
+  const [embedded, setEmbedded] = useState(false);
+
+  useEffect(() => {
+    setEmbedded(window.self !== window.top);
+  }, []);
 
   const { peak, avg, active, scaleMax } = useMemo(() => {
     let max = 0;
