@@ -135,6 +135,20 @@ function Dashboard() {
           ESP32, or run the demo feed.
         </p>
       )}
+      {supported && embedded && (
+        <p className="mt-4 rounded-lg border border-border bg-secondary/50 px-4 py-3 text-sm text-muted-foreground">
+          You&apos;re viewing this inside an embedded preview, where browsers restrict serial access.{" "}
+          <a
+            href={typeof window !== "undefined" ? window.location.href : "/"}
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-accent underline underline-offset-4"
+          >
+            Open in a new tab
+          </a>{" "}
+          to connect the mat.
+        </p>
+      )}
       {error && (
         <p className="mt-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive-foreground">
           {error}
