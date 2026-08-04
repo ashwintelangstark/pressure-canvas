@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { COLS, MAX_VALUE, ROWS, heatColor } from "@/lib/pressure";
 import { useSerialMat } from "@/lib/use-serial-mat";
 
@@ -38,6 +38,11 @@ function Dashboard() {
     useSerialMat();
   const [hover, setHover] = useState<{ r: number; c: number } | null>(null);
   const [autoScale, setAutoScale] = useState(true);
+  const [embedded, setEmbedded] = useState(false);
+
+  useEffect(() => {
+    setEmbedded(window.self !== window.top);
+  }, []);
 
   const { peak, avg, active, scaleMax } = useMemo(() => {
     let max = 0;
@@ -128,6 +133,20 @@ function Dashboard() {
         <p className="mt-4 rounded-lg border border-border bg-secondary/50 px-4 py-3 text-sm text-muted-foreground">
           This browser doesn&apos;t support Web Serial. Use Chrome or Edge on desktop to connect the
           ESP32, or run the demo feed.
+        </p>
+      )}
+      {supported && embedded && (
+        <p className="mt-4 rounded-lg border border-border bg-secondary/50 px-4 py-3 text-sm text-muted-foreground">
+          You&apos;re viewing this inside an embedded preview, where browsers restrict serial access.{" "}
+          <a
+            href={typeof window !== "undefined" ? window.location.href : "/"}
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-accent underline underline-offset-4"
+          >
+            Open in a new tab
+          </a>{" "}
+          to connect the mat.
         </p>
       )}
       {error && (
