@@ -143,5 +143,12 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    background-image: radial-gradient(
+      ellipse at 50% -10%,
+      oklch(0.26 0.03 250 / 0.9),
+      transparent 65%
+    );
+    background-attachment: fixed;
+    font-family: var(--font-display);
   }
 }
