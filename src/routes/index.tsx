@@ -34,8 +34,21 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function Dashboard() {
-  const { frame, status, error, frameCount, fps, supported, connect, disconnect, startDemo, stopDemo } =
-    useSerialMat();
+  const {
+    frame,
+    status,
+    error,
+    frameCount,
+    fps,
+    supported,
+    connect,
+    disconnect,
+    startDemo,
+    stopDemo,
+    tare,
+    resetBaseline,
+    customBaseline,
+  } = useSerialMat();
   const [hover, setHover] = useState<{ r: number; c: number } | null>(null);
   const [autoScale, setAutoScale] = useState(true);
   const [embedded, setEmbedded] = useState(false);
@@ -52,7 +65,7 @@ function Dashboard() {
       for (const v of row) {
         if (v > max) max = v;
         sum += v;
-        if (v > MAX_VALUE * 0.12) act++;
+        if (v > 10) act++;
       }
     return {
       peak: max,
@@ -117,6 +130,14 @@ function Dashboard() {
           className="rounded-lg border border-border bg-secondary px-4 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-40"
         >
           {status === "demo" ? "Stop demo" : "Demo feed"}
+        </button>
+        <button
+          onClick={customBaseline ? resetBaseline : tare}
+          disabled={!customBaseline && frameCount === 0}
+          className="rounded-lg border border-border bg-secondary px-4 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-40"
+          title="Zero the mat using the current unloaded reading"
+        >
+          {customBaseline ? "Use default baseline" : "Zero mat (tare)"}
         </button>
         <label className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
           <input
@@ -215,8 +236,11 @@ function Dashboard() {
 
       <footer className="mt-10 border-t border-border pt-5 text-xs leading-relaxed text-muted-foreground">
         Reads the firmware stream directly: 20 comma-separated rows per frame followed by a blank
-        separator line. Close the Arduino Serial Monitor before connecting — only one program can
-        hold the port.
+        separator line. Readings are baseline-corrected against your recorded rest frames (per-cell
+        maximum across 16 idle captures, plus a 6-count noise margin), so an unloaded mat displays
+        zero everywhere and only real pressure lights up. Use “Zero mat (tare)” to re-baseline
+        against the current unloaded reading. Close the Arduino Serial Monitor before connecting —
+        only one program can hold the port.
       </footer>
     </main>
   );
