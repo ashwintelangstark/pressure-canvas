@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FrameParser, emptyFrame, simulateFrame, type Frame } from "./pressure";
+import {
+  DEFAULT_BASELINE,
+  FrameParser,
+  calibrate,
+  emptyFrame,
+  simulateFrame,
+  type Frame,
+} from "./pressure";
 
 type Status = "idle" | "connecting" | "connected" | "demo" | "error";
 
@@ -10,17 +17,21 @@ export function useSerialMat() {
   const [frameCount, setFrameCount] = useState(0);
   const [fps, setFps] = useState(0);
   const [supported, setSupported] = useState(false);
+  const [customBaseline, setCustomBaseline] = useState(false);
 
   const portRef = useRef<any>(null);
   const stopRef = useRef<(() => void) | null>(null);
   const timesRef = useRef<number[]>([]);
+  const rawRef = useRef<Frame>(emptyFrame());
+  const baselineRef = useRef<Frame>(DEFAULT_BASELINE);
 
   useEffect(() => {
     setSupported(typeof navigator !== "undefined" && "serial" in navigator);
   }, []);
 
   const onFrame = useCallback((f: Frame) => {
-    setFrame(f);
+    rawRef.current = f;
+    setFrame(calibrate(f, baselineRef.current));
     setFrameCount((n) => n + 1);
     const now = performance.now();
     const times = timesRef.current;
@@ -31,6 +42,20 @@ export function useSerialMat() {
       setFps(span > 0 ? ((times.length - 1) / span) * 1000 : 0);
     }
   }, []);
+
+  /** Capture the current (unloaded) reading as the new zero point. */
+  const tare = useCallback(() => {
+    baselineRef.current = rawRef.current.map((row) => [...row]);
+    setCustomBaseline(true);
+    setFrame(calibrate(rawRef.current, baselineRef.current));
+  }, []);
+
+  const resetBaseline = useCallback(() => {
+    baselineRef.current = DEFAULT_BASELINE;
+    setCustomBaseline(false);
+    setFrame(calibrate(rawRef.current, DEFAULT_BASELINE));
+  }, []);
+
 
   const disconnect = useCallback(async () => {
     stopRef.current?.();
