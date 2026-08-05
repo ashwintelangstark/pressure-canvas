@@ -117,7 +117,8 @@ export function simulateFrame(t: number): Frame {
       const d1 = (r - cy) ** 2 + (c - cx) ** 2;
       const d2 = (r - cy2) ** 2 + (c - cx2) ** 2;
       const v = 900 * Math.exp(-d1 / 14) + 620 * Math.exp(-d2 / 8);
-      return Math.min(MAX_VALUE, Math.round(v + Math.random() * 25));
+      const rest = DEFAULT_BASELINE[r]?.[c] ?? 0;
+      return Math.min(MAX_VALUE, Math.round(rest + v + Math.random() * 4));
     }),
   );
 }
