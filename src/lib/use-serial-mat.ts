@@ -199,5 +199,19 @@ export function useSerialMat() {
 
   useEffect(() => () => stopRef.current?.(), []);
 
-  return { frame, status, error, frameCount, fps, supported, connect, disconnect, startDemo, stopDemo };
+  return {
+    frame,
+    status,
+    error,
+    frameCount,
+    fps,
+    supported,
+    connect,
+    disconnect,
+    startDemo,
+    stopDemo,
+    tare,
+    resetBaseline,
+    customBaseline,
+  };
 }
