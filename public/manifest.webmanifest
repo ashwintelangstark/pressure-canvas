@@ -1,0 +1,14 @@
+{
+  "name": "Pressure Mat Heatmap",
+  "short_name": "Pressure Mat",
+  "description": "Live 20x20 pressure sensor heatmap streamed from an ESP32 over USB serial.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "icons": [
+    { "src": "/app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
