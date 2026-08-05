@@ -131,6 +131,14 @@ function Dashboard() {
         >
           {status === "demo" ? "Stop demo" : "Demo feed"}
         </button>
+        <button
+          onClick={customBaseline ? resetBaseline : tare}
+          disabled={!customBaseline && frameCount === 0}
+          className="rounded-lg border border-border bg-secondary px-4 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-40"
+          title="Zero the mat using the current unloaded reading"
+        >
+          {customBaseline ? "Use default baseline" : "Zero mat (tare)"}
+        </button>
         <label className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
           <input
             type="checkbox"
