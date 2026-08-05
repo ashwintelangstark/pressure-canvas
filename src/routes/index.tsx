@@ -34,8 +34,21 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 function Dashboard() {
-  const { frame, status, error, frameCount, fps, supported, connect, disconnect, startDemo, stopDemo } =
-    useSerialMat();
+  const {
+    frame,
+    status,
+    error,
+    frameCount,
+    fps,
+    supported,
+    connect,
+    disconnect,
+    startDemo,
+    stopDemo,
+    tare,
+    resetBaseline,
+    customBaseline,
+  } = useSerialMat();
   const [hover, setHover] = useState<{ r: number; c: number } | null>(null);
   const [autoScale, setAutoScale] = useState(true);
   const [embedded, setEmbedded] = useState(false);
@@ -52,7 +65,7 @@ function Dashboard() {
       for (const v of row) {
         if (v > max) max = v;
         sum += v;
-        if (v > MAX_VALUE * 0.12) act++;
+        if (v > 10) act++;
       }
     return {
       peak: max,
