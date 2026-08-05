@@ -236,8 +236,11 @@ function Dashboard() {
 
       <footer className="mt-10 border-t border-border pt-5 text-xs leading-relaxed text-muted-foreground">
         Reads the firmware stream directly: 20 comma-separated rows per frame followed by a blank
-        separator line. Close the Arduino Serial Monitor before connecting — only one program can
-        hold the port.
+        separator line. Readings are baseline-corrected against your recorded rest frames (per-cell
+        maximum across 16 idle captures, plus a 6-count noise margin), so an unloaded mat displays
+        zero everywhere and only real pressure lights up. Use “Zero mat (tare)” to re-baseline
+        against the current unloaded reading. Close the Arduino Serial Monitor before connecting —
+        only one program can hold the port.
       </footer>
     </main>
   );
